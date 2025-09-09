@@ -29,3 +29,5 @@ build*/**
 
 *.pt
 !weights/*.pt
+
+__pycache__/

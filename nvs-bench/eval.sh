@@ -17,3 +17,12 @@ output_folder=$2
 #   python render.py --data $data_folder/test --output $output_folder --eval
 # 3) Move the renders into `$output_folder/test_renders`
 #   mv $output_folder/test/ours_30000/renders $output_folder/test_renders
+
+iterations=10
+
+./build/gaussian_splatting_cuda -d $data_folder \
+    -o $output_folder \
+    --eval \
+    --save-eval-images \
+    --render-mode RGB \
+    -i $iterations

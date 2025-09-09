@@ -28,7 +28,7 @@ modal_volumes: dict[str | PurePosixPath, Volume] = {
 }
 
 image = (
-    Image.from_registry("pytorch/pytorch:2.4.1-cuda12.1-cudnn9-devel")
+    Image.from_registry("pytorch/pytorch:2.7.1-cuda12.8-cudnn9-devel") # find others at: https://hub.docker.com/r/pytorch/pytorch/tags?page=1&ordering=last_updated
     .env(
         {
             # Set Torch CUDA Compatbility to be for RTX 4090, T4, L40s, and A100
@@ -86,4 +86,7 @@ image = (
     # .run_commands("pip install submodules/diff-gaussian-rasterization")
     # .run_commands("pip install -e .")
     # Note: If your run_commands step needs access to a gpu it's actually possible to do that through "run_commands(gpu='L40S', ...)"
+    .run_commands("git clone https://github.com/MrNeRF/LichtFeld-Studio.git --recursive .")
+    .run_commands("cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja")
+    .run_commands("cmake --build build -- -j$(nproc)")
 )
