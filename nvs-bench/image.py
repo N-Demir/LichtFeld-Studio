@@ -28,7 +28,7 @@ modal_volumes: dict[str | PurePosixPath, Volume] = {
 }
 
 image = (
-    Image.from_registry("pytorch/pytorch:2.7.1-cuda12.8-cudnn9-devel") # find others at: https://hub.docker.com/r/pytorch/pytorch/tags?page=1&ordering=last_updated
+    Image.from_registry("nvidia/cuda:12.8.0-devel-ubuntu24.04", setup_dockerfile_commands=["RUN ln -s /usr/bin/python3 /usr/bin/python"]) # find others at: https://hub.docker.com/
     .env(
         {
             # Set Torch CUDA Compatbility to be for RTX 4090, T4, L40s, and A100
@@ -46,11 +46,8 @@ image = (
             git \
             wget \
             unzip \
-            cmake \
             build-essential \
             ninja-build \
-            gcc \
-            g++ \
             libglew-dev \
             libassimp-dev \
             libboost-all-dev \
@@ -69,13 +66,11 @@ image = (
             libxxf86vm-dev"
     )
     # Install gsutil (for downloading datasets the first time)
-    .apt_install("curl", "ca-certificates", "gnupg")
-    .run_commands(
-        "curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -",
-        "echo 'deb https://packages.cloud.google.com/apt cloud-sdk main' | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list",
-        "apt-get update && apt-get install -y google-cloud-cli",
-    )
+    .run_commands("apt-get install -y apt-transport-https ca-certificates gnupg curl")
+    .run_commands('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && apt-get update -y && apt-get install google-cloud-cli -y')
     # For tracking GPU usage
+    .run_commands("apt-get install -y python3-pip")
+    .run_commands("pip config set global.break-system-packages true") # disable PEP 668 protection globally
     .run_commands("pip install gpu_tracker")
     # Set the working dir
     .workdir(f"/root/{method_name}")
@@ -90,28 +85,18 @@ image = (
     # Note: If your run_commands step needs access to a gpu it's actually possible to do that through "run_commands(gpu='L40S', ...)"
 
     # Install GCC 14
-    # Install dependencies
     .run_commands("apt-get install -y build-essential libmpfr-dev libgmp3-dev libmpc-dev")
-
-    # Download and build GCC
-    .workdir("/root")
-    .run_commands("wget http://ftp.gnu.org/gnu/gcc/gcc-14.1.0/gcc-14.1.0.tar.gz")
-    .run_commands("tar -xf gcc-14.1.0.tar.gz")
-    .workdir("/root/gcc-14.1.0")
-
-    # Configure and build (1-2 hours)
-    .run_commands("./configure --prefix=/usr/local/gcc-14.1.0 --enable-languages=c,c++ --disable-multilib")
-    .run_commands("make -j$(nproc)")
-    .run_commands("sudo make install")
-
-    # Set up alternatives
-    .run_commands("sudo update-alternatives --install /usr/bin/gcc gcc /usr/local/gcc-14.1.0/bin/gcc 14")
-    .run_commands("sudo update-alternatives --install /usr/bin/g++ g++ /usr/local/gcc-14.1.0/bin/g++ 14")
-    .workdir(f"/root/{method_name}")
-
+    .run_commands("apt-get update")
+    .run_commands("apt-get install -y gcc-14 g++-14 gfortran-14")
+    # Set gcc14 as default
+    .run_commands("update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 60")
+    .run_commands("update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-14 60")
+    .run_commands("update-alternatives --config gcc")
+    .run_commands("update-alternatives --config g++")
 
     # Install LichtFeld-Studio
     .run_commands("git clone https://github.com/MrNeRF/LichtFeld-Studio.git --recursive .")
+    .run_commands("apt-get install -y curl zip tar")
 
     # Setup vcpkg
     .run_commands("git clone https://github.com/microsoft/vcpkg.git")
@@ -122,6 +107,14 @@ image = (
     .run_commands("wget https://download.pytorch.org/libtorch/cu128/libtorch-cxx11-abi-shared-with-deps-2.7.0%2Bcu128.zip")
     .run_commands("unzip libtorch-cxx11-abi-shared-with-deps-2.7.0+cu128.zip -d external/")
     .run_commands("rm libtorch-cxx11-abi-shared-with-deps-2.7.0+cu128.zip")
+
+    # Install CMake 3.30 from official releases
+    .run_commands(
+        "wget https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-x86_64.sh && \
+        chmod +x cmake-3.30.5-linux-x86_64.sh && \
+        ./cmake-3.30.5-linux-x86_64.sh --skip-license --prefix=/usr/local && \
+        rm cmake-3.30.5-linux-x86_64.sh"
+    )
 
     .run_commands("cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja")
     .run_commands("cmake --build build -- -j$(nproc)")

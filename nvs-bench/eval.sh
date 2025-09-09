@@ -20,7 +20,7 @@ output_folder=$2
 
 iterations=10
 
-./build/gaussian_splatting_cuda -d $data_folder \
+./build/LichtFeld-Studio -d $data_folder \
     -o $output_folder \
     --eval \
     --save-eval-images \
