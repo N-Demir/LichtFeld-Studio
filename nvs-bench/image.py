@@ -93,7 +93,7 @@ image = (
     .run_commands("update-alternatives --config g++")
 
     # Install LichtFeld-Studio
-    .run_commands("git clone https://github.com/MrNeRF/LichtFeld-Studio.git --recursive .")
+    .run_commands("git clone https://github.com/N-Demir/LichtFeld-Studio.git --recursive .")
     .run_commands("apt-get install -y curl zip tar")
 
     # Setup vcpkg
