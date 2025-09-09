@@ -28,7 +28,7 @@ modal_volumes: dict[str | PurePosixPath, Volume] = {
 }
 
 image = (
-    Image.from_registry("nvidia/cuda:12.8.0-devel-ubuntu24.04", setup_dockerfile_commands=["RUN ln -s /usr/bin/python3 /usr/bin/python"]) # find others at: https://hub.docker.com/
+    Image.from_registry("nvidia/cuda:12.8.0-devel-ubuntu24.04", add_python="3.12") # find others at: https://hub.docker.com/
     .env(
         {
             # Set Torch CUDA Compatbility to be for RTX 4090, T4, L40s, and A100
@@ -69,7 +69,6 @@ image = (
     .run_commands("apt-get install -y apt-transport-https ca-certificates gnupg curl")
     .run_commands('echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list && curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | gpg --dearmor -o /usr/share/keyrings/cloud.google.gpg && apt-get update -y && apt-get install google-cloud-cli -y')
     # For tracking GPU usage
-    .run_commands("apt-get install -y python3-pip")
     .run_commands("pip config set global.break-system-packages true") # disable PEP 668 protection globally
     .run_commands("pip install gpu_tracker")
     # Set the working dir
@@ -86,7 +85,6 @@ image = (
 
     # Install GCC 14
     .run_commands("apt-get install -y build-essential libmpfr-dev libgmp3-dev libmpc-dev")
-    .run_commands("apt-get update")
     .run_commands("apt-get install -y gcc-14 g++-14 gfortran-14")
     # Set gcc14 as default
     .run_commands("update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-14 60")
@@ -104,16 +102,16 @@ image = (
     .env({"VCPKG_ROOT": "/root/LichtFeld-Studio/vcpkg"})
 
     # Download LibTorch
-    .run_commands("wget https://download.pytorch.org/libtorch/cu128/libtorch-cxx11-abi-shared-with-deps-2.7.0%2Bcu128.zip")
-    .run_commands("unzip libtorch-cxx11-abi-shared-with-deps-2.7.0+cu128.zip -d external/")
-    .run_commands("rm libtorch-cxx11-abi-shared-with-deps-2.7.0+cu128.zip")
+    .run_commands("wget https://download.pytorch.org/libtorch/cu128/libtorch-cxx11-abi-shared-with-deps-2.7.1%2Bcu128.zip && \
+        unzip libtorch-cxx11-abi-shared-with-deps-2.7.1+cu128.zip -d external/ && \
+        rm libtorch-cxx11-abi-shared-with-deps-2.7.1+cu128.zip")
 
-    # Install CMake 3.30 from official releases
+    # Install CMake 4.0.3
     .run_commands(
-        "wget https://github.com/Kitware/CMake/releases/download/v3.30.5/cmake-3.30.5-linux-x86_64.sh && \
-        chmod +x cmake-3.30.5-linux-x86_64.sh && \
-        ./cmake-3.30.5-linux-x86_64.sh --skip-license --prefix=/usr/local && \
-        rm cmake-3.30.5-linux-x86_64.sh"
+        "wget https://github.com/Kitware/CMake/releases/download/v4.0.3/cmake-4.0.3-linux-x86_64.sh && \
+        chmod +x cmake-4.0.3-linux-x86_64.sh && \
+        ./cmake-4.0.3-linux-x86_64.sh --skip-license --prefix=/usr/local && \
+        rm cmake-4.0.3-linux-x86_64.sh"
     )
 
     .run_commands("cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja")

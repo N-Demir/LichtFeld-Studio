@@ -41,6 +41,7 @@ namespace gs {
             bool enable_eval = false;                         // Only evaluate when explicitly enabled
             bool rc = false;                                  // Workaround for reality captures - doesn't properly convert COLMAP camera model
             bool enable_save_eval_images = true;              // Save during evaluation images
+            bool just_save_renders = false;                   // Save only rendered images, not ground truth
             bool headless = false;                            // Disable visualization during training
             std::string render_mode = "RGB";                  // Render mode: RGB, D, ED, RGB_D, RGB_ED
             std::string strategy = "mcmc";                    // Optimization strategy: mcmc, default.

@@ -282,6 +282,7 @@ namespace gs {
             opt_json["save_steps"] = save_steps;
             opt_json["enable_eval"] = enable_eval;
             opt_json["enable_save_eval_images"] = enable_save_eval_images;
+            opt_json["just_save_renders"] = just_save_renders;
             opt_json["strategy"] = strategy;
             opt_json["skip_intermediate"] = skip_intermediate_saving;
             opt_json["use_bilateral_grid"] = use_bilateral_grid;
@@ -399,6 +400,9 @@ namespace gs {
             }
             if (json.contains("enable_save_eval_images")) {
                 params.enable_save_eval_images = json["enable_save_eval_images"];
+            }
+            if (json.contains("just_save_renders")) {
+                params.just_save_renders = json["just_save_renders"];
             }
             if (json.contains("skip_intermediate")) {
                 params.skip_intermediate_saving = json["skip_intermediate"];

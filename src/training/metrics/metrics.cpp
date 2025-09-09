@@ -454,9 +454,18 @@ namespace gs::training {
                 ssim_values.push_back(ssim);
                 lpips_values.push_back(lpips);
 
-                // Save side-by-side RGB images asynchronously with actual image name
+                // Save RGB images asynchronously with actual image name
                 if (_params.optimization.enable_save_eval_images) {
-                    const std::vector<torch::Tensor> rgb_images = {gt_image.squeeze(0), r_output.image.squeeze(0)};
+                    std::vector<torch::Tensor> rgb_images;
+                    
+                    if (_params.optimization.just_save_renders) {
+                        // Save only rendered images
+                        rgb_images = {r_output.image.squeeze(0)};
+                    } else {
+                        // Save side-by-side ground truth and rendered images
+                        rgb_images = {gt_image.squeeze(0), r_output.image.squeeze(0)};
+                    }
+                    
                     image_io::save_images_async(
                         eval_dir / (image_base_name + ".png"),
                         rgb_images,

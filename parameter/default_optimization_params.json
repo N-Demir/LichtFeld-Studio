@@ -24,6 +24,7 @@
   "save_steps": [7000, 30000],
   "enable_eval": false,
   "enable_save_eval_images": true,
+  "just_save_renders": false,
   "use_bilateral_grid": false,
   "skip_intermediate": false,
   "bg_modulation": false,

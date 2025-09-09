@@ -116,6 +116,7 @@ namespace {
             ::args::Flag headless(parser, "headless", "Disable visualization during training", {"headless"});
             ::args::Flag antialiasing(parser, "antialiasing", "Enable antialiasing", {'a', "antialiasing"});
             ::args::Flag enable_save_eval_images(parser, "save_eval_images", "Save eval images and depth maps", {"save-eval-images"});
+            ::args::Flag just_save_renders(parser, "just_save_renders", "Save only rendered images, not ground truth", {"just-save-renders"});
             ::args::Flag save_depth(parser, "save_depth", "Save depth maps during training", {"save-depth"});
             ::args::Flag skip_intermediate_saving(parser, "skip_intermediate", "Skip saving intermediate results and only save final output", {"skip-intermediate"});
             ::args::Flag bg_modulation(parser, "bg_modulation", "Enable sinusoidal background modulation mixed with base background", {"bg-modulation"});
@@ -303,6 +304,7 @@ namespace {
                                         headless_flag = bool(headless),
                                         antialiasing_flag = bool(antialiasing),
                                         enable_save_eval_images_flag = bool(enable_save_eval_images),
+                                        just_save_renders_flag = bool(just_save_renders),
                                         skip_intermediate_saving_flag = bool(skip_intermediate_saving),
                                         bg_modulation_flag = bool(bg_modulation),
                                         random_flag = bool(random),
@@ -355,6 +357,7 @@ namespace {
                 setFlag(headless_flag, opt.headless);
                 setFlag(antialiasing_flag, opt.antialiasing);
                 setFlag(enable_save_eval_images_flag, opt.enable_save_eval_images);
+                setFlag(just_save_renders_flag, opt.just_save_renders);
                 setFlag(skip_intermediate_saving_flag, opt.skip_intermediate_saving);
                 setFlag(bg_modulation_flag, opt.bg_modulation);
                 setFlag(random_flag, opt.random);

@@ -25,4 +25,9 @@ iterations=10
     --eval \
     --save-eval-images \
     --render-mode RGB \
+    --headless \
+    --skip-intermediate \
+    --just-save-renders \
     -i $iterations
+
+mv $output_folder/eval_step_$iterations $output_folder/test_renders
