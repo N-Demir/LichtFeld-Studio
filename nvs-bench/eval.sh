@@ -18,7 +18,11 @@ output_folder=$2
 # 3) Move the renders into `$output_folder/test_renders`
 #   mv $output_folder/test/ours_30000/renders $output_folder/test_renders
 
-iterations=10
+# If you want to change this, make sure
+#  "eval_steps": [7000, 30000], 
+# is changed in the appropriate optimization_params.json file (mcmc_... for example)
+# should instead be changed to [10, 7000, 30000] for example or else no saving will happen
+iterations=30000
 
 ./build/LichtFeld-Studio -d $data_folder \
     -o $output_folder \
@@ -26,7 +30,6 @@ iterations=10
     --save-eval-images \
     --render-mode RGB \
     --headless \
-    --skip-intermediate \
     --just-save-renders \
     -i $iterations
 
