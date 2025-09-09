@@ -49,6 +49,8 @@ image = (
             cmake \
             build-essential \
             ninja-build \
+            gcc \
+            g++ \
             libglew-dev \
             libassimp-dev \
             libboost-all-dev \
@@ -87,6 +89,18 @@ image = (
     # .run_commands("pip install -e .")
     # Note: If your run_commands step needs access to a gpu it's actually possible to do that through "run_commands(gpu='L40S', ...)"
     .run_commands("git clone https://github.com/MrNeRF/LichtFeld-Studio.git --recursive .")
+    .run_commands("apt-get install -y curl zip unzip tar")
+
+    # Setup vcpkg
+    .run_commands("git clone https://github.com/microsoft/vcpkg.git")
+    .run_commands("cd vcpkg && ./bootstrap-vcpkg.sh -disableMetrics && cd ..")
+    .env({"VCPKG_ROOT": "/root/LichtFeld-Studio/vcpkg"})
+
+    # Download LibTorch
+    .run_commands("wget https://download.pytorch.org/libtorch/cu128/libtorch-cxx11-abi-shared-with-deps-2.7.0%2Bcu128.zip")
+    .run_commands("unzip libtorch-cxx11-abi-shared-with-deps-2.7.0+cu128.zip -d external/")
+    .run_commands("rm libtorch-cxx11-abi-shared-with-deps-2.7.0+cu128.zip")
+
     .run_commands("cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja")
     .run_commands("cmake --build build -- -j$(nproc)")
 )
