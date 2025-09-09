@@ -88,8 +88,30 @@ image = (
     # .run_commands("pip install submodules/diff-gaussian-rasterization")
     # .run_commands("pip install -e .")
     # Note: If your run_commands step needs access to a gpu it's actually possible to do that through "run_commands(gpu='L40S', ...)"
+
+    # Install GCC 14
+    # Install dependencies
+    .run_commands("apt-get install -y build-essential libmpfr-dev libgmp3-dev libmpc-dev")
+
+    # Download and build GCC
+    .workdir("/root")
+    .run_commands("wget http://ftp.gnu.org/gnu/gcc/gcc-14.1.0/gcc-14.1.0.tar.gz")
+    .run_commands("tar -xf gcc-14.1.0.tar.gz")
+    .workdir("/root/gcc-14.1.0")
+
+    # Configure and build (1-2 hours)
+    .run_commands("./configure --prefix=/usr/local/gcc-14.1.0 --enable-languages=c,c++ --disable-multilib")
+    .run_commands("make -j$(nproc)")
+    .run_commands("sudo make install")
+
+    # Set up alternatives
+    .run_commands("sudo update-alternatives --install /usr/bin/gcc gcc /usr/local/gcc-14.1.0/bin/gcc 14")
+    .run_commands("sudo update-alternatives --install /usr/bin/g++ g++ /usr/local/gcc-14.1.0/bin/g++ 14")
+    .workdir(f"/root/{method_name}")
+
+
+    # Install LichtFeld-Studio
     .run_commands("git clone https://github.com/MrNeRF/LichtFeld-Studio.git --recursive .")
-    .run_commands("apt-get install -y curl zip unzip tar")
 
     # Setup vcpkg
     .run_commands("git clone https://github.com/microsoft/vcpkg.git")
