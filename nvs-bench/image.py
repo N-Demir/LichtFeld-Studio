@@ -114,6 +114,6 @@ image = (
         rm cmake-4.0.3-linux-x86_64.sh"
     )
 
-    .run_commands("cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja")
+    .run_commands("cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_CXX_FLAGS='-march=x86-64-v2 -mtune=generic'")
     .run_commands("cmake --build build -- -j$(nproc)")
 )
