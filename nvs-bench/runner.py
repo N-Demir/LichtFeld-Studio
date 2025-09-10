@@ -1,5 +1,6 @@
 # You shouldn't need to edit this file, but feel free to take a look at how things are called and run remotely
 import os
+import subprocess
 import shutil
 import time
 from contextlib import contextmanager
@@ -59,8 +60,9 @@ def eval(data: str):
     shutil.rmtree(output_folder, ignore_errors=True)
     output_folder.mkdir(parents=True, exist_ok=True)
 
+    print(os.system("lscpu"))
     with log_max_gpu_memory(f"{output_folder}/max_gpu_memory.txt"), log_time(f"{output_folder}/time.txt"):
-        os.system(f"bash nvs-bench/eval.sh {data_folder} {output_folder}")
+        subprocess.run(f"bash nvs-bench/eval.sh {data_folder} {output_folder}", shell=True, check=True)
 
     nvs_bench_volume.commit()
 
@@ -84,15 +86,14 @@ def full_eval():
         # DeepBlending
         "deepblending/playroom",
         "deepblending/drjohnson",
-        # TODO: Need to update the downsampling factor for zipnerf datasets
-        # # ZipNerf
-        # "zipnerf/alameda",
-        # "zipnerf/berlin",
-        # "zipnerf/london",
-        # "zipnerf/nyc",
+        # ZipNerf
+        "zipnerf/alameda",
+        "zipnerf/berlin",
+        "zipnerf/london",
+        "zipnerf/nyc",
     ]
 
-    eval.for_each(BENCHMARK_DATA)
+    eval.for_each(BENCHMARK_DATA, ignore_exceptions=True)
 
 
 @app.local_entrypoint()

@@ -114,6 +114,10 @@ image = (
         rm cmake-4.0.3-linux-x86_64.sh"
     )
 
-    .run_commands("cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_CXX_FLAGS='-march=x86-64-v2 -mtune=generic'")
+    # Note: as of 2025-09-10, modal's L40S gpus have amd and intel cpus and the amd's don't support something in this build
+    # in case it was the lichtfeld install that was unsupported, we specifically specify x86-64 and generic
+    # but, after making the change, the amd chips mysteriously dissapeared. So we've not been able to verify it made a difference.
+    # It's possible instead the problem is with the libtorch binary, which is a much bigger thing to build.... hope not!
+    .run_commands("cmake -B build -DCMAKE_BUILD_TYPE=Release -G Ninja -DCMAKE_CXX_FLAGS='-march=x86-64 -mtune=generic'")
     .run_commands("cmake --build build -- -j$(nproc)")
 )
