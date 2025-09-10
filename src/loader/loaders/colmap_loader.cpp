@@ -201,6 +201,11 @@ namespace gs::loader {
                 cameras.push_back(std::move(cam));
             }
 
+            // Sort cameras by image name for consistent ordering
+            std::ranges::sort(cameras, [](const auto& a, const auto& b) {
+                return a->image_name() < b->image_name();
+            });
+
             // Create dataset configuration with actual images folder
             gs::param::DatasetConfig dataset_config;
             dataset_config.data_path = path;
